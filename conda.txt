@@ -10,11 +10,11 @@
  cartopy=0.17.0
  cython=0.29.2
  cytoolz=0.9.0.1
- dask=1.0.0
+ dask=1.2.2
 # disable dask-ml for now, version incompatible with hmmlearn due to 
 # dependency conflict on scikit-learn
 # - dask-ml=0.11.0
- distributed=1.25.1
+ distributed=1.28.1
  fastcluster=1.1.25
  fastparquet=0.2.1
  gcsfs=0.2.0
