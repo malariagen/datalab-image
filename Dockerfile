@@ -26,19 +26,7 @@ RUN conda config --add channels bioconda
 RUN conda update --yes conda
 
 
-RUN conda install --yes  \
-    -c pyviz/label/dev \
-    -c bokeh/channel/dev \
-    -c intake \
-    -c conda-forge \
-    -c bioconda \
-    --file /conda.txt \
-    && conda clean -afy \
-    && find /opt/conda/ -follow -type f -name '*.a' -delete \
-    && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
-    && find /opt/conda/ -follow -type f -name '*.js.map' -delete \
-    && find /opt/conda/lib/python*/site-packages/bokeh/server/static -follow -type f -name '*.js' ! -name '*.min.js' -delete
-
+RUN conda install --yes python=3.6 --file /conda.txt
 
 RUN pip install --upgrade pip
 
@@ -47,7 +35,7 @@ RUN pip install -r /pip.txt
 RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager \
                                  @jupyterlab/hub-extension \
                                  @pyviz/jupyterlab_pyviz
-RUN jupyter labextension install dask-labextension
+#RUN jupyter labextension install dask-labextension
 
 RUN jupyter serverextension enable --py nbserverproxy --sys-prefix
 
