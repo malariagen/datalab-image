@@ -1,4 +1,4 @@
-FROM jupyter/base-notebook:4417b81d04b7
+FROM jupyter/base-notebook
 
 USER root
 RUN apt-get update \
@@ -8,8 +8,7 @@ RUN apt-get update \
 
 USER $NB_USER
 RUN conda config --set ssl_verify no
-COPY conda.txt /conda.txt
-COPY pip.txt /pip.txt
+COPY binder/environment.yml /tmp/environment.yml
 
 ARG tag
 RUN echo "image tag is $tag"
@@ -18,26 +17,40 @@ ENV IMAGETAG=$tag
 RUN echo " ---------------------------------- "
 RUN echo "env variable IMAGETAG is ${IMAGETAG}"
 
+
+
+
+    # create default scientific Python environment
+
 RUN conda config --add channels pyviz/label/dev
 RUN conda config --add channels bokeh/label/dev
 RUN conda config --add channels intake
 RUN conda config --add channels bioconda
 RUN conda config --add channels conda-forge
-RUN conda update --yes conda
+#RUN conda update --yes conda
+
+RUN conda env update  --file /tmp/environment.yml --prune
+RUN conda clean -afy 
+#    && find /opt/conda/ -follow -type f -name '*.a' -delete \
+#    && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
+#    && find /opt/conda/ -follow -type f -name '*.js.map' -delete 
+#    
 
 
-RUN conda install --yes python=3.6 --file /conda.txt
+RUN /opt/conda/bin/pip install nbserverproxy
+RUN conda  install nb_conda
 
-RUN pip install --upgrade pip
 
-RUN pip install -r /pip.txt
-
-RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager \
-                                 @jupyterlab/hub-extension \
-                                 @pyviz/jupyterlab_pyviz
-#RUN jupyter labextension install dask-labextension
+RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager 
+RUN jupyter labextension install @jupyterlab/hub-extension 
+RUN jupyter labextension install @pyviz/jupyterlab_pyviz
+RUN jupyter labextension install jupyterlab-jupytext
+RUN jupyter labextension install dask-labextension
 
 RUN jupyter serverextension enable --py nbserverproxy --sys-prefix
+
+
+
 
 USER root
 COPY prepare.sh /usr/bin/prepare.sh
@@ -57,6 +70,9 @@ RUN mkdir /opt/app
 RUN echo "$NB_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/notebook
 RUN sed -ri "s#Defaults\s+secure_path=\"([^\"]+)\"#Defaults secure_path=\"\1:$CONDA_DIR/bin\"#" /etc/sudoers
 USER $NB_USER
+
+RUN echo "source activate $(head -1 /tmp/environment.yml | cut -d' ' -f2)" > /pre-home/.bashrc
+ENV PATH /opt/conda/envs/$(head -1 /tmp/environment.yml | cut -d' ' -f2)/bin:$PATH
 
 ENTRYPOINT ["tini", "--", "/usr/bin/prepare.sh"]
 CMD ["start.sh jupyter lab"]
