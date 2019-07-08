@@ -18,11 +18,11 @@ ENV IMAGETAG=$tag
 RUN echo " ---------------------------------- "
 RUN echo "env variable IMAGETAG is ${IMAGETAG}"
 
-RUN conda config --add channels conda-forge
 RUN conda config --add channels pyviz/label/dev
 RUN conda config --add channels bokeh/label/dev
 RUN conda config --add channels intake
 RUN conda config --add channels bioconda
+RUN conda config --add channels conda-forge
 RUN conda update --yes conda
 
 
