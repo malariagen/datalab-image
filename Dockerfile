@@ -2,13 +2,13 @@ FROM jupyter/base-notebook
 
 USER root
 RUN apt-get update \
-  && apt-get install -yq --no-install-recommends dnsutils libfuse-dev nano fuse vim git build-essential  openssh-client \
+  && apt-get install -yq --no-install-recommends dnsutils libfuse-dev nano fuse vim git build-essential openssh-client \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
 USER $NB_USER
 RUN conda config --set ssl_verify no
-COPY binder/environment.yml /tmp/environment.yml
+COPY binder/environment-pinned-linux.yml /tmp/environment.yml
 
 ARG tag
 RUN echo "image tag is $tag"
@@ -17,29 +17,22 @@ ENV IMAGETAG=$tag
 RUN echo " ---------------------------------- "
 RUN echo "env variable IMAGETAG is ${IMAGETAG}"
 
+# create default scientific Python environment
 
-
-
-    # create default scientific Python environment
-
-RUN conda config --add channels pyviz/label/dev
-RUN conda config --add channels bokeh/label/dev
-RUN conda config --add channels intake
 RUN conda config --add channels bioconda
 RUN conda config --add channels conda-forge
-#RUN conda update --yes conda
+RUN conda config --set channel_priority strict
+RUN conda update --yes conda
 
-RUN conda env update  --file /tmp/environment.yml --prune
+RUN conda env update --file /tmp/environment.yml
 RUN conda clean -afy 
 #    && find /opt/conda/ -follow -type f -name '*.a' -delete \
 #    && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
 #    && find /opt/conda/ -follow -type f -name '*.js.map' -delete 
 #    
 
-
 RUN /opt/conda/bin/pip install nbserverproxy
-RUN conda  install nb_conda
-
+RUN conda install nb_conda
 
 RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager 
 RUN jupyter labextension install @jupyterlab/hub-extension 
@@ -48,9 +41,6 @@ RUN jupyter labextension install jupyterlab-jupytext
 RUN jupyter labextension install dask-labextension
 
 RUN jupyter serverextension enable --py nbserverproxy --sys-prefix
-
-
-
 
 USER root
 COPY prepare.sh /usr/bin/prepare.sh
@@ -76,4 +66,3 @@ ENV PATH /opt/conda/envs/$(head -1 /tmp/environment.yml | cut -d' ' -f2)/bin:$PA
 
 ENTRYPOINT ["tini", "--", "/usr/bin/prepare.sh"]
 CMD ["start.sh jupyter lab"]
-
