@@ -8,7 +8,9 @@ RUN apt-get update \
 
 USER $NB_USER
 RUN conda config --set ssl_verify no
-COPY binder/environment.yml /tmp/environment.yml
+#COPY conda.txt /conda.txt
+#COPY pip.txt /pip.txt
+COPY binder/environment-pinned-linux.yml /tmp/environment.yml
 
 ARG tag
 RUN echo "image tag is $tag"
@@ -38,28 +40,35 @@ RUN conda clean -afy
 
 
 RUN /opt/conda/bin/pip install nbserverproxy
+
 RUN conda  install nb_conda
+RUN conda remove -n malariagen jupytext
+
+
+RUN jupyter serverextension enable --py nbserverproxy --sys-prefix
 
 
 RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager 
 RUN jupyter labextension install @jupyterlab/hub-extension 
 RUN jupyter labextension install @pyviz/jupyterlab_pyviz
-RUN jupyter labextension install jupyterlab-jupytext
 RUN jupyter labextension install dask-labextension
 
-RUN jupyter serverextension enable --py nbserverproxy --sys-prefix
 
 
-
+RUN jupyter labextension list
 
 USER root
 COPY prepare.sh /usr/bin/prepare.sh
 RUN chmod +x /usr/bin/prepare.sh
 RUN mkdir /home/$NB_USER/examples && chown -R $NB_USER /home/$NB_USER/examples
-RUN mkdir /pre-home && mkdir /pre-home/examples && chown -R $NB_USER /pre-home
+RUN mkdir /pre-home && mkdir /pre-home/examples 
+
+COPY conda_init /pre-home/.bashrc
+RUN chown -R $NB_USER /pre-home
 COPY examples/ /pre-home/examples/
 
 ENV DASK_CONFIG=/home/$NB_USER/config.yaml
+
 COPY config.yaml /pre-home
 COPY worker-template.yaml /pre-home
 
@@ -71,7 +80,7 @@ RUN echo "$NB_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/notebook
 RUN sed -ri "s#Defaults\s+secure_path=\"([^\"]+)\"#Defaults secure_path=\"\1:$CONDA_DIR/bin\"#" /etc/sudoers
 USER $NB_USER
 
-RUN echo "source activate $(head -1 /tmp/environment.yml | cut -d' ' -f2)" > /pre-home/.bashrc
+RUN echo "conda activate $(head -1 /tmp/environment.yml | cut -d' ' -f2)" >> /pre-home/.bashrc
 ENV PATH /opt/conda/envs/$(head -1 /tmp/environment.yml | cut -d' ' -f2)/bin:$PATH
 
 ENTRYPOINT ["tini", "--", "/usr/bin/prepare.sh"]
