@@ -8,8 +8,7 @@ RUN apt-get update \
 
 USER $NB_USER
 RUN conda config --set ssl_verify no
-#COPY conda.txt /conda.txt
-#COPY pip.txt /pip.txt
+
 COPY binder/environment-pinned-linux.yml /tmp/environment.yml
 
 ARG tag
@@ -22,21 +21,20 @@ RUN echo "env variable IMAGETAG is ${IMAGETAG}"
 
 
 
-    # create default scientific Python environment
+# create default scientific Python environment
 
 RUN conda config --add channels pyviz/label/dev
 RUN conda config --add channels bokeh/label/dev
 RUN conda config --add channels intake
 RUN conda config --add channels bioconda
 RUN conda config --add channels conda-forge
-#RUN conda update --yes conda
 
 RUN conda env update  --file /tmp/environment.yml --prune
-RUN conda clean -afy 
-#    && find /opt/conda/ -follow -type f -name '*.a' -delete \
-#    && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
-#    && find /opt/conda/ -follow -type f -name '*.js.map' -delete 
-#    
+RUN conda clean -afy \ 
+    && find /opt/conda/ -follow -type f -name '*.a' -delete \
+    && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
+    && find /opt/conda/ -follow -type f -name '*.js.map' -delete 
+    
 
 
 RUN /opt/conda/bin/pip install nbserverproxy
@@ -78,6 +76,8 @@ RUN mkdir /opt/app
 # Add NB_USER to sudo
 RUN echo "$NB_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/notebook
 RUN sed -ri "s#Defaults\s+secure_path=\"([^\"]+)\"#Defaults secure_path=\"\1:$CONDA_DIR/bin\"#" /etc/sudoers
+
+# Add conda env settings to .bashrc and .profile
 USER $NB_USER
 
 RUN echo "conda activate $(head -1 /tmp/environment.yml | cut -d' ' -f2)" >> /pre-home/.bashrc
