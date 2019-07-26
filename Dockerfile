@@ -38,6 +38,7 @@ RUN conda clean -afy \
 
 
 RUN /opt/conda/bin/pip install nbserverproxy
+RUN /opt/conda/bin/pip install dask_labextension
 
 RUN conda  install nb_conda
 RUN conda remove -n malariagen jupytext
