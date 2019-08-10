@@ -85,6 +85,7 @@ RUN echo "conda activate $(head -1 /tmp/environment.yml | cut -d' ' -f2)" >> /pr
 RUN cp /pre-home/.bashrc /pre-home/.profile
 
 ENV PATH /opt/conda/envs/$(head -1 /tmp/environment.yml | cut -d' ' -f2)/bin:$PATH
+RUN mkdir /home/$NB_USER/nfs
 
 ENTRYPOINT ["tini", "--", "/usr/bin/prepare.sh"]
 CMD ["start.sh jupyter lab"]
