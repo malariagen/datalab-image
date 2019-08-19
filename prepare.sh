@@ -46,7 +46,7 @@ sudo cp /tmp/resolv.conf /etc/resolv.conf
 
 mkdir /home/jovyan/nfs
 
-sudo mount 10.233.41.41:/ /home/jovyan/nfs
+sudo timeout 5 mount 10.233.41.41:/ /home/jovyan/nfs
 
 else
  echo "DNS record for datalab not found"
