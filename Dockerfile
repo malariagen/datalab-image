@@ -2,7 +2,7 @@ FROM jupyter/base-notebook
 
 USER root
 RUN apt-get update \
-  && apt-get install -yq --no-install-recommends dnsutils libfuse-dev nano fuse vim git \
+  && apt-get install -yq --no-install-recommends dnsutils libfuse-dev nano fuse vim git s3cmd s3fs \
   build-essential  openssh-client nfs-common rpcbind inetutils-ping wget \
   nfs-kernel-server runit inotify-tools \
   && apt-get clean \
