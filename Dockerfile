@@ -16,8 +16,7 @@ USER $NB_USER
 RUN conda config --set ssl_verify no
 
 COPY binder/environment-pinned-linux.yml /tmp/environment-pinned-linux.yml
-RUN sed  's/malariagen/base/' /tmp/environment-pinned-linux.yml > /tmp/environment.yml
-
+RUN sed  's/malariagen.*/base/' /tmp/environment-pinned-linux.yml > /tmp/environment.yml
 COPY pinned /tmp/pinned
 
 ARG tag
