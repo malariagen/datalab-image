@@ -24,7 +24,7 @@ fi
 
 if [ "$GCSFUSE_BUCKET" ]; then
     echo "Mounting $GCSFUSE_BUCKET to /gcs"
-    /opt/conda/bin/gcsfuse $GCSFUSE_BUCKET /gcs --background
+    #/opt/conda/bin/gcsfuse $GCSFUSE_BUCKET /gcs --background
 fi
 
 
