@@ -56,6 +56,7 @@ RUN /opt/conda/bin/pip install jupyter-server-proxy
 
 RUN conda  install nb_conda
 RUN conda remove -n base nbserverproxy
+RUN pip install gsutil
 
 #RUN jupyter serverextension enable --py nbserverproxy --sys-prefix
 
