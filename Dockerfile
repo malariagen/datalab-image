@@ -88,9 +88,7 @@ RUN echo "$NB_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/notebook
 RUN sed -ri "s#Defaults\s+secure_path=\"([^\"]+)\"#Defaults secure_path=\"\1:$CONDA_DIR/bin\"#" /etc/sudoers
 USER $NB_USER
 
-RUN mkdir -pv /home/${NB_USER}/.ssh
-RUN touch /home/${NB_USER}/.ssh/id_rsa
-RUN chmod 600 /home/${NB_USER}/.ssh/id_rsa
+
 
 RUN conda env list
 
