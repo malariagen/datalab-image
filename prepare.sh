@@ -5,6 +5,11 @@ set -x
 echo "Copy files from pre-load directory into home "
 cp --update -r -v /pre-home/. /home/jovyan
 
+mkdir -pv /home/jovyan/.ssh
+touch /home/jovyan/.ssh/id_rsa
+chmod 600 /home/jovyan/.ssh/id_rsa
+
+
 if [ -e "/opt/app/environment.yml" ]; then
     echo "environment.yml found. Installing packages"
     /opt/conda/bin/conda env update -f /opt/app/environment.yml
